@@ -2,6 +2,7 @@ function initMap() {
   //location permission
   var infoWindow = new google.maps.InfoWindow();
   var map;
+  var searchResult = "";
 
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
@@ -10,6 +11,9 @@ function initMap() {
           lat: position.coords.latitude,
           lng: position.coords.longitude
         };
+        //塞目前座標
+        document.getElementById("currentLoc").innerHTML =
+          pos.lat + "," + pos.lng;
         //map options
         var options = {
           zoom: 15,
@@ -29,7 +33,7 @@ function initMap() {
         service.nearbySearch(
           {
             location: pos,
-            radius: 2000,
+            radius: 1000,
             type: ["hospital"]
           },
           callback
@@ -51,12 +55,20 @@ function initMap() {
       map: map
     });
   }
+  //add information
+  function addInfo(){
+    
+  }
+  //callback
   function callback(results, status) {
-    console.log(results);
     if (status === google.maps.places.PlacesServiceStatus.OK) {
       for (var i = 0; i < results.length; i++) {
         addMarker(results[i].geometry.location);
+        console.log(results[i].name);
+        searchResult += results[i].name + "<br/>";
       }
+      console.log(searchResult);
+      document.getElementById("results").innerHTML = searchResult;
     } else {
       alert("Geocode was not successful for the following reason: " + status);
     }
