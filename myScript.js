@@ -7,6 +7,7 @@ function initMap() {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       function(position) {
+        console.log(position);
         var pos = {
           lat: position.coords.latitude,
           lng: position.coords.longitude
@@ -23,9 +24,9 @@ function initMap() {
         var mapElement = document.getElementById("map");
         map = new google.maps.Map(mapElement, options);
 
-        infoWindow.setPosition(pos);
+        //infoWindow.setPosition(pos);
         map.setCenter(pos);
-        addMarker(pos);
+        addMarker(pos, "目前位置");
 
         //呼叫placeserveice
         var service = new google.maps.places.PlacesService(map);
@@ -33,7 +34,7 @@ function initMap() {
         service.nearbySearch(
           {
             location: pos,
-            radius: 1000,
+            radius: 10000,
             type: ["hospital"]
           },
           callback
@@ -49,22 +50,26 @@ function initMap() {
   }
 
   //add marker
-  function addMarker(coords) {
+  function addMarker(coords, content) {
     var marker = new google.maps.Marker({
       position: coords,
       map: map
     });
+    //add information
+    marker.addListener("click", addInfo);
+    function addInfo() {
+      infoWindow.setContent(content);
+      infoWindow.open(map, marker);
+    }
   }
-  //add information
-  function addInfo(){
-    
-  }
+
   //callback
   function callback(results, status) {
     if (status === google.maps.places.PlacesServiceStatus.OK) {
       for (var i = 0; i < results.length; i++) {
-        addMarker(results[i].geometry.location);
-        console.log(results[i].name);
+        console.log(results[i]);
+        var infoDisplay = results[i].name + "<br/>" + results[i].vicinity;
+        addMarker(results[i].geometry.location, infoDisplay);
         searchResult += results[i].name + "<br/>";
       }
       console.log(searchResult);
