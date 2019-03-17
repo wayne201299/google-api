@@ -1,22 +1,60 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <link rel="stylesheet" type="text/css" href="main.css" />
-    <script src="myScript.js"></script>
+    <!--custom script-->
+    <script type="text/javascript" src="myScript.js"></script>
+    <!--Google Map API-->
     <script
       async
       defer
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBqvmE8ZSfGtpXTfRZ4F0V7VFmxBd0dpzw&libraries=places&callback=initMap"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBqvmE8ZSfGtpXTfRZ4F0V7VFmxBd0dpzw&libraries=places,geometry&callback=initMap"
     ></script>
+    <!--jQuery-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
     <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
     <title>Google map API</title>
   </head>
   <body>
-    <h3>Google Maps API Demo</h3>
+    <h1>Google Maps API CRUD</h1>
     <div id="content">
-      <div id="map"></div>
-      <div id="current">目前座標: <span id="currentLoc"></span></div>
-      <div id="search">查詢結果: <span id="results"></span></div>
+      <table border="1">
+        <tr>
+          <td rowspan="3">
+            <div id="map"></div>
+          </td>
+          <td>
+            <div id="current">目前座標: <span id="currentLoc"></span></div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div id="search">查詢結果: <span id="results"></span></div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div id="crud">
+              Title :<br />
+              <input type="text" id="titleAdd" /><br />
+              地址 :<br />
+              <input type="text" id="addressAdd" /><br />
+              座標 :<br />
+              <input type="number" id="latitudeAdd" />
+              <input type="number" id="longtitudeAdd" />
+              <button onclick="addAddress()">新增</button>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div id="dbData">
+      <h2>資料庫資料</h2>
     </div>
   </body>
 </html>
