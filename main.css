@@ -1,13 +1,28 @@
-body{
+body {
   padding: 10px;
 }
 #map {
   height: 600px;
   width: 600px;
 }
-#current{
+#current {
   padding: 10px;
 }
-#search{
+#search {
   padding: 10px;
+}
+#results {
+  float: right;
+}
+#titleAdd {
+  margin: 2px;
+}
+#addressAdd {
+  margin: 2px;
+}
+#latitudeAdd {
+  margin: 2px;
+}
+#longtitudeAdd {
+  margin: 2px;
 }

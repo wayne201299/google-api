@@ -1,28 +1,29 @@
+var map;
+var searchResult = "";
 function initMap() {
+  //map options
+  var options = {
+    zoom: 15
+  };
+  //new map
+  map = new google.maps.Map(document.getElementById("map"), options);
   //location permission
   var infoWindow = new google.maps.InfoWindow();
-  var map;
-  var searchResult = "";
-
+  //如果允許定位
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       function(position) {
-        console.log(position);
-        var pos = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
+        var pos = new google.maps.LatLng(
+          position.coords.latitude,
+          position.coords.longitude
+        );
         //塞目前座標
         document.getElementById("currentLoc").innerHTML =
-          pos.lat + "," + pos.lng;
-        //map options
-        var options = {
-          zoom: 15,
-          center: pos
-        };
-        //new map
-        var mapElement = document.getElementById("map");
-        map = new google.maps.Map(mapElement, options);
+          "(" +
+          Math.round(position.coords.latitude * 100) / 100 +
+          "," +
+          Math.round(position.coords.longitude * 100) / 100 +
+          ")";
 
         //infoWindow.setPosition(pos);
         map.setCenter(pos);
@@ -34,10 +35,35 @@ function initMap() {
         service.nearbySearch(
           {
             location: pos,
-            radius: 10000,
+            radius: 10000, //unit:meter
             type: ["hospital"]
           },
-          callback
+          //callback,接回傳結果
+          function(results, status) {
+            if (status === google.maps.places.PlacesServiceStatus.OK) {
+              for (var i = 0; i <= 10; i++) {
+                var distance = google.maps.geometry.spherical.computeDistanceBetween(
+                  pos,
+                  results[i].geometry.location
+                );
+                var infoDisplay =
+                  results[i].name +
+                  "<br/>" +
+                  results[i].vicinity +
+                  "<br/>" +
+                  "距離:" +
+                  Math.round((distance / 1000) * 10) / 10 +
+                  "公里";
+                addMarker(results[i].geometry.location, infoDisplay);
+                searchResult += results[i].name + "<br/>";
+              }
+              document.getElementById("results").innerHTML = searchResult;
+            } else {
+              alert(
+                "Geocode was not successful for the following reason: " + status
+              );
+            }
+          }
         );
       },
       function() {
@@ -48,7 +74,15 @@ function initMap() {
     // Browser doesn't support Geolocation
     handleLocationError(false, infoWindow, map.getCenter());
   }
-
+  function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+    infoWindow.setPosition(pos);
+    infoWindow.setContent(
+      browserHasGeolocation
+        ? "Error: The Geolocation service failed."
+        : "Error: Your browser doesn't support geolocation."
+    );
+    infoWindow.open(map);
+  }
   //add marker
   function addMarker(coords, content) {
     var marker = new google.maps.Marker({
@@ -56,35 +90,29 @@ function initMap() {
       map: map
     });
     //add information
-    marker.addListener("click", addInfo);
-    function addInfo() {
+    marker.addListener("click", function() {
       infoWindow.setContent(content);
       infoWindow.open(map, marker);
-    }
-  }
-
-  //callback
-  function callback(results, status) {
-    if (status === google.maps.places.PlacesServiceStatus.OK) {
-      for (var i = 0; i < results.length; i++) {
-        console.log(results[i]);
-        var infoDisplay = results[i].name + "<br/>" + results[i].vicinity;
-        addMarker(results[i].geometry.location, infoDisplay);
-        searchResult += results[i].name + "<br/>";
-      }
-      console.log(searchResult);
-      document.getElementById("results").innerHTML = searchResult;
-    } else {
-      alert("Geocode was not successful for the following reason: " + status);
-    }
+    });
   }
 }
-function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-  infoWindow.setPosition(pos);
-  infoWindow.setContent(
-    browserHasGeolocation
-      ? "Error: The Geolocation service failed."
-      : "Error: Your browser doesn't support geolocation."
-  );
-  infoWindow.open(map);
+//新增標籤
+function addAddress() {
+  var content = {
+    title: document.getElementById("titleAdd").value,
+    address: document.getElementById("addressAdd").value
+  };
+  var addPos = {
+    lat: parseFloat(document.getElementById("latitudeAdd").value),
+    lng: parseFloat(document.getElementById("longtitudeAdd").value)
+  };
+  var addMarker = new google.maps.Marker({
+    position: addPos,
+    map: map,
+    content: content.title + "<br/>" + content.address,
+    icon:
+      "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"
+  });
+  $("#results").append("<span>" + addPos.lat, addPos.lng + "</span>" + "<br/>");
+  
 }
