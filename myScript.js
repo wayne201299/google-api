@@ -1,14 +1,11 @@
 var map;
 var searchResult = "";
+var infoWindow;
 function initMap() {
-  //map options
-  var options = {
-    zoom: 15
-  };
   //new map
-  map = new google.maps.Map(document.getElementById("map"), options);
+  map = new google.maps.Map(document.getElementById("map"), { zoom: 15 });
   //location permission
-  var infoWindow = new google.maps.InfoWindow();
+  infoWindow = new google.maps.InfoWindow();
   //如果允許定位
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
@@ -113,6 +110,9 @@ function addAddress() {
     icon:
       "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"
   });
+  addMarker.addListener("click", function() {
+    infoWindow.setContent(content.title + "<br/>" + content.address);
+    infoWindow.open(map, addMarker);
+  });
   $("#results").append("<span>" + addPos.lat, addPos.lng + "</span>" + "<br/>");
-  
 }
