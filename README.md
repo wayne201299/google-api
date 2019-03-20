@@ -1,5 +1,13 @@
 # 使用情境
 透過Google Map搜尋裝置附近醫院並存入資料庫
+# 開發環境
+- 前端
+  - HTML
+  - CSS
+  - JavaScript
+- Library
+  - Google Map API v3
+  - jQuery
 # 時程紀錄
 2019-03-20
 
