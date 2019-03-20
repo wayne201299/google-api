@@ -1,5 +1,6 @@
-
-# Google Map API實作
+# 使用情境
+透過Google Map搜尋裝置附近醫院並存入資料庫
+# 時程紀錄
 2019-03-20
 
 - delete功能
