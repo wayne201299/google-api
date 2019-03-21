@@ -1,5 +1,6 @@
 var map;
-var searchResult = "";
+var searchResult = [];
+var markers = [];
 var infoWindow;
 function initMap() {
   //new map
@@ -38,23 +39,26 @@ function initMap() {
           //callback,接回傳結果
           function(results, status) {
             if (status === google.maps.places.PlacesServiceStatus.OK) {
-              for (var i = 0; i <= 10; i++) {
+              for (let i = 0; i <= 10; i++) {
                 var distance = google.maps.geometry.spherical.computeDistanceBetween(
                   pos,
                   results[i].geometry.location
                 );
-                var infoDisplay =
+                let infoDisplay =
                   results[i].name +
                   "<br/>" +
                   results[i].vicinity +
                   "<br/>" +
                   "距離:" +
                   Math.round((distance / 1000) * 10) / 10 +
-                  "公里";
+                  "公里" +
+                  "<br/><button id = 'deleteBtn'>Delete</button>";
                 addMarker(results[i].geometry.location, infoDisplay);
-                searchResult += results[i].name + "<br/>";
+                searchResult.push(results[i].name);
               }
-              document.getElementById("results").innerHTML = searchResult;
+              document.getElementById("results").innerHTML = arrTostr(
+                searchResult
+              );
             } else {
               alert(
                 "Geocode was not successful for the following reason: " + status
@@ -84,14 +88,27 @@ function initMap() {
   function addMarker(coords, content) {
     var marker = new google.maps.Marker({
       position: coords,
-      map: map
+      map: map,
+      animation: google.maps.Animation.DROP
     });
+    markers.push(marker);
     //add information
     marker.addListener("click", function() {
       infoWindow.setContent(content);
       infoWindow.open(map, marker);
+      infoWindow.addListener("domready", function() {
+        var btn = document.getElementById("deleteBtn");
+        btn.onclick = function() {
+          //remove item from array
+          removeA(markers, marker, searchResult);
+          marker.setMap(null);
+          let searchStr = arrTostr(searchResult);
+          document.getElementById("results").innerHTML = searchStr;
+        };
+      });
     });
   }
+  ////////////////////////////////////////////////////////
 }
 //新增標籤
 function addAddress() {
@@ -107,12 +124,49 @@ function addAddress() {
     position: addPos,
     map: map,
     content: content.title + "<br/>" + content.address,
+    animation: google.maps.Animation.DROP,
     icon:
       "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"
   });
+  markers.push(addMarker);
+
   addMarker.addListener("click", function() {
-    infoWindow.setContent(content.title + "<br/>" + content.address);
+    infoWindow.setContent(
+      content.title +
+        "<br/>" +
+        content.address +
+        "<br/><button id = 'deleteBtn'>Delete</button>"
+    );
     infoWindow.open(map, addMarker);
+    infoWindow.addListener("domready", function() {
+      var btn = document.getElementById("deleteBtn");
+      btn.onclick = function() {
+        //remove item from array
+        removeA(markers, addMarker, searchResult);
+        addMarker.setMap(null);
+        let searchStr = arrTostr(searchResult);
+        console.log(searchStr);
+        document.getElementById("results").innerHTML = searchStr;
+      };
+    });
   });
-  $("#results").append("<span>" + addPos.lat, addPos.lng + "</span>" + "<br/>");
+  $("#results").append("<span>" + content.title + "</span>" + "<br/>");
+}
+//陣列中刪除特定值
+function removeA(arr, removeItem, searchResult) {
+  for (let i = 0; i <= arr.length; i++) {
+    if (arr[i] === removeItem) {
+      arr.splice(i, 1);
+      searchResult.splice(i - 1, 1);
+    }
+  }
+  return arr;
+}
+//陣列轉字串(插空白)
+function arrTostr(arr) {
+  var results = "";
+  for (let i = 0; i < arr.length; i++) {
+    results += arr[i] + "<br/>";
+  }
+  return results;
 }
