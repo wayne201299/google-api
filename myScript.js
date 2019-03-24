@@ -44,16 +44,12 @@ function initMap() {
                   pos,
                   results[i].geometry.location
                 );
-                let infoDisplay =
-                  results[i].name +
-                  "<br/>" +
-                  results[i].vicinity +
-                  "<br/>" +
-                  "距離:" +
-                  Math.round((distance / 1000) * 10) / 10 +
-                  "公里" +
-                  "<br/><button id = 'deleteBtn'>Delete</button>";
-                addMarker(results[i].geometry.location, infoDisplay);
+                addMarker(
+                  results[i].geometry.location,
+                  results[i].name,
+                  results[i].vicinity,
+                  distance
+                );
                 searchResult.push(results[i].name);
               }
               document.getElementById("results").innerHTML = arrTostr(
@@ -85,25 +81,66 @@ function initMap() {
     infoWindow.open(map);
   }
   //add marker
-  function addMarker(coords, content) {
+  function addMarker(coords, result_name, result_vicinity, distance) {
     var marker = new google.maps.Marker({
       position: coords,
       map: map,
       animation: google.maps.Animation.DROP
     });
     markers.push(marker);
+    //info window content
+    content =
+      result_name +
+      "<br/>" +
+      result_vicinity +
+      "<br/>" +
+      "距離:" +
+      Math.round((distance / 1000) * 10) / 10 +
+      "公里" +
+      "<br/><button id = 'deleteBtn'>Delete</button>" +
+      "<button id = 'updateBtn'>Update</button>";
+    //////////////////////
     //add information
     marker.addListener("click", function() {
       infoWindow.setContent(content);
       infoWindow.open(map, marker);
       infoWindow.addListener("domready", function() {
-        var btn = document.getElementById("deleteBtn");
-        btn.onclick = function() {
+        let deleteBtn = document.getElementById("deleteBtn");
+        let updateBtn = document.getElementById("updateBtn");
+        deleteBtn.onclick = function() {
           //remove item from array
           removeA(markers, marker, searchResult);
           marker.setMap(null);
           let searchStr = arrTostr(searchResult);
           document.getElementById("results").innerHTML = searchStr;
+        };
+        updateBtn.onclick = function() {
+          let input_info =
+            "名稱:" +
+            "<input type='text' id='name_up'><br/>" +
+            "地址:" +
+            "<input type='text' id='address_up'><br/>" +
+            "<button id = 'updateSave'>Save</button>";
+          infoWindow.setContent(input_info);
+          $("#updateSave").click(function() {
+            let new_name = $("#name_up").val();
+            let new_address = $("#address_up").val();
+            //info window content
+            let new_content =
+              new_name +
+              "<br/>" +
+              new_address +
+              "<br/>" +
+              "距離:" +
+              Math.round((distance / 1000) * 10) / 10 +
+              "公里" +
+              "<br/><button id = 'deleteBtn'>Delete</button>" +
+              "<button id = 'updateBtn'>Update</button>";
+            //////////////////////
+            infoWindow.setContent(new_content);
+          });
+
+          console.log(a);
         };
       });
     });
@@ -112,15 +149,15 @@ function initMap() {
 }
 //新增標籤
 function addAddress() {
-  var content = {
+  let content = {
     title: document.getElementById("titleAdd").value,
     address: document.getElementById("addressAdd").value
   };
-  var addPos = {
+  let addPos = {
     lat: parseFloat(document.getElementById("latitudeAdd").value),
     lng: parseFloat(document.getElementById("longtitudeAdd").value)
   };
-  var addMarker = new google.maps.Marker({
+  let addMarker = new google.maps.Marker({
     position: addPos,
     map: map,
     content: content.title + "<br/>" + content.address,
@@ -139,7 +176,7 @@ function addAddress() {
     );
     infoWindow.open(map, addMarker);
     infoWindow.addListener("domready", function() {
-      var btn = document.getElementById("deleteBtn");
+      let btn = document.getElementById("deleteBtn");
       btn.onclick = function() {
         //remove item from array
         removeA(markers, addMarker, searchResult);
