@@ -9,6 +9,10 @@
   - Google Map API v3
   - jQuery
 # 時程紀錄
+2019-03-24
+
+- update功能(update後，infowindow值未改變，原因:function寫在marker.addlistener內)
+
 2019-03-20
 
 - delete功能(修正地點刪除錯誤)
