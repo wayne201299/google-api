@@ -8,7 +8,7 @@
   - JavaScript
 - Library
   - Google Map API v3
-  - jQuery
+  - jQuery 3.3.1
 - IDE
   - Visual Studio Code
 # 架構設計
