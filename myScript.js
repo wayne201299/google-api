@@ -25,7 +25,13 @@ function initMap() {
 
         //infoWindow.setPosition(pos);
         map.setCenter(pos);
-        addMarker(pos, "目前位置");
+        searchResult.push({
+          location: pos,
+          name: "目前位置",
+          Address: "",
+          distance: 0
+        });
+        addMarker(0, searchResult);
 
         //呼叫placeserveice
         var service = new google.maps.places.PlacesService(map);
@@ -44,22 +50,22 @@ function initMap() {
                   pos,
                   results[i].geometry.location
                 );
-                addMarker(
-                  results[i].geometry.location,
-                  results[i].name,
-                  results[i].vicinity,
-                  distance
-                );
-                searchResult.push(results[i].name);
+                //搜尋結果累加
+                searchResult.push({
+                  location: results[i].geometry.location,
+                  name: results[i].name,
+                  Address: results[i].vicinity,
+                  distance: Math.round((distance / 1000) * 10) / 10
+                });
+                //加標籤
+                addMarker(i + 1, searchResult);
               }
-              document.getElementById("results").innerHTML = arrTostr(
-                searchResult
-              );
             } else {
               alert(
                 "Geocode was not successful for the following reason: " + status
               );
             }
+            renderResult(searchResult);
           }
         );
       },
@@ -80,121 +86,99 @@ function initMap() {
     );
     infoWindow.open(map);
   }
-  //add marker
-  function addMarker(coords, result_name, result_vicinity, distance) {
-    var marker = new google.maps.Marker({
-      position: coords,
-      map: map,
-      animation: google.maps.Animation.DROP
-    });
-    markers.push(marker);
+}
+//add marker
+function addMarker(identify, searchResult) {
+  var marker = new google.maps.Marker({
+    position: searchResult[identify].location,
+    map: map,
+    animation: google.maps.Animation.DROP
+  });
+  markers.push(marker);
+  //console.log(identify);
+  //console.log(searchResult[identify].location);
+  //add information
+  marker.addListener("click", function() {
     //info window content
     content =
-      result_name +
+      searchResult[identify].name +
       "<br/>" +
-      result_vicinity +
+      searchResult[identify].Address +
       "<br/>" +
       "距離:" +
-      Math.round((distance / 1000) * 10) / 10 +
+      searchResult[identify].distance +
       "公里" +
       "<br/><button id = 'deleteBtn'>Delete</button>" +
       "<button id = 'updateBtn'>Update</button>";
     //////////////////////
-    //add information
-    marker.addListener("click", function() {
-      infoWindow.setContent(content);
-      infoWindow.open(map, marker);
-      infoWindow.addListener("domready", function() {
-        let deleteBtn = document.getElementById("deleteBtn");
-        let updateBtn = document.getElementById("updateBtn");
-        deleteBtn.onclick = function() {
-          //remove item from array
-          removeA(markers, marker, searchResult);
-          marker.setMap(null);
-          let searchStr = arrTostr(searchResult);
-          document.getElementById("results").innerHTML = searchStr;
-        };
-        updateBtn.onclick = function() {
-          let input_info =
-            "名稱:" +
-            "<input type='text' id='name_up'><br/>" +
-            "地址:" +
-            "<input type='text' id='address_up'><br/>" +
-            "<button id = 'updateSave'>Save</button>";
-          infoWindow.setContent(input_info);
-          $("#updateSave").click(function() {
-            let new_name = $("#name_up").val();
-            let new_address = $("#address_up").val();
-            //info window content
-            let new_content =
-              new_name +
-              "<br/>" +
-              new_address +
-              "<br/>" +
-              "距離:" +
-              Math.round((distance / 1000) * 10) / 10 +
-              "公里" +
-              "<br/><button id = 'deleteBtn'>Delete</button>" +
-              "<button id = 'updateBtn'>Update</button>";
-            //////////////////////
-            infoWindow.setContent(new_content);
-          });
-
-          console.log(a);
-        };
-      });
-    });
-  }
-  ////////////////////////////////////////////////////////
-}
-//新增標籤
-function addAddress() {
-  let content = {
-    title: document.getElementById("titleAdd").value,
-    address: document.getElementById("addressAdd").value
-  };
-  let addPos = {
-    lat: parseFloat(document.getElementById("latitudeAdd").value),
-    lng: parseFloat(document.getElementById("longtitudeAdd").value)
-  };
-  let addMarker = new google.maps.Marker({
-    position: addPos,
-    map: map,
-    content: content.title + "<br/>" + content.address,
-    animation: google.maps.Animation.DROP,
-    icon:
-      "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"
-  });
-  markers.push(addMarker);
-
-  addMarker.addListener("click", function() {
-    infoWindow.setContent(
-      content.title +
-        "<br/>" +
-        content.address +
-        "<br/><button id = 'deleteBtn'>Delete</button>"
-    );
-    infoWindow.open(map, addMarker);
+    infoWindow.setContent(content);
+    infoWindow.open(map, marker);
     infoWindow.addListener("domready", function() {
-      let btn = document.getElementById("deleteBtn");
-      btn.onclick = function() {
+      let deleteBtn = document.getElementById("deleteBtn");
+      deleteBtn.onclick = function() {
         //remove item from array
-        removeA(markers, addMarker, searchResult);
-        addMarker.setMap(null);
-        let searchStr = arrTostr(searchResult);
-        console.log(searchStr);
-        document.getElementById("results").innerHTML = searchStr;
+        delete markers[identify];
+        delete searchResult[identify];
+        //markers.splice(identify, 1);
+        //searchResult.splice(identify, 1);
+
+        marker.setMap(null);
+        renderResult(searchResult);
+      };
+      let updateBtn = document.getElementById("updateBtn");
+      updateBtn.onclick = function() {
+        let input_info =
+          "名稱:" +
+          "<input type='text' id='name_up'><br/>" +
+          "地址:" +
+          "<input type='text' id='address_up'><br/>" +
+          "<button id = 'updateSave'>Save</button>";
+        infoWindow.setContent(input_info);
+        $("#updateSave").click(function() {
+          //update search results
+          searchResult[identify].name = $("#name_up").val();
+          searchResult[identify].Address = $("#address_up").val();
+          //info window content
+          let new_content =
+            searchResult[identify].name +
+            "<br/>" +
+            searchResult[identify].Address +
+            "<br/>" +
+            "距離:" +
+            searchResult[identify].distance +
+            "公里" +
+            "<br/><button id = 'deleteBtn'>Delete</button>" +
+            "<button id = 'updateBtn'>Update</button>";
+          infoWindow.setContent(new_content);
+          //render results
+          renderResult(searchResult);
+        });
       };
     });
   });
-  $("#results").append("<span>" + content.title + "</span>" + "<br/>");
+}
+////////////////////////////////////////////////////////
+//新增標籤
+function addAddress() {
+  let addPos = {
+    lat: parseFloat($("#latitudeAdd").val()),
+    lng: parseFloat($("#longtitudeAdd").val())
+  };
+  searchResult.push({
+    location: addPos,
+    name: $("#titleAdd").val(),
+    Address: $("#addressAdd").val(),
+    distance: "???"
+  });
+  addMarker(searchResult.length - 1, searchResult);
+  renderResult(searchResult);
 }
 //陣列中刪除特定值
 function removeA(arr, removeItem, searchResult) {
   for (let i = 0; i <= arr.length; i++) {
     if (arr[i] === removeItem) {
       arr.splice(i, 1);
-      searchResult.splice(i - 1, 1);
+      searchResult.splice(i, 1);
     }
   }
   return arr;
@@ -206,4 +190,14 @@ function arrTostr(arr) {
     results += arr[i] + "<br/>";
   }
   return results;
+}
+//刷新搜尋結果
+function renderResult(results) {
+  console.log(results);
+  let searchStr = arrTostr(
+    results
+      .map(item => Object.values(item)[1])
+      .filter(item => item !== undefined || item === "目前座標")
+  );
+  document.getElementById("results").innerHTML = searchStr;
 }
