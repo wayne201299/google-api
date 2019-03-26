@@ -23,6 +23,10 @@
 
 ![](https://github.com/wayne201299/google-api/blob/master/initMap.png)
 
+### 新增、修改、刪除
+皆是由按鈕觸發事件，再因應相對應的動作對searchResult做更動，最後render 搜尋結果畫面
+
+![](https://github.com/wayne201299/google-api/blob/master/CUD.png)
 
 # 時程紀錄
 2019-03-26
