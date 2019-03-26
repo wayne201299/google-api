@@ -12,6 +12,15 @@
 - IDE
   - Visual Studio Code
 # 架構設計
+- 全域變數
+  - map : 地圖
+  - searchResearch : 搜尋後的結果
+  - markers : 存放插過旗子的marker，以利後續控制
+  - infoWindow : 點擊後跳出的訊息
+  
+一開始網頁載入後即載入google map，會先觸發一支callback(initMap)，
+這時map跟infoWindow都會由google map api function帶入，瀏覽器跳視窗確認允許定位
+
 
 # 時程紀錄
 2019-03-26
