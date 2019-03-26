@@ -1,6 +1,7 @@
 # 使用情境
-透過Google Map搜尋裝置附近醫院並存入資料庫
-# 開發環境
+透過Google Map搜尋裝置附近醫院資料，並將經使用者新增、修改、刪除後的資料存入資料庫
+
+# 開發環境及工具
 - 前端
   - HTML
   - CSS
@@ -8,6 +9,10 @@
 - Library
   - Google Map API v3
   - jQuery
+- IDE
+  - Visual Studio Code
+# 架構設計
+
 # 時程紀錄
 2019-03-26
 
